@@ -4,7 +4,7 @@ import time
 import hashlib
 import os
 
-# ===== 환경변수 =====
+# ===== 환경변수 (Railway에서 설정) =====
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 
@@ -19,7 +19,7 @@ KOREA_FEEDS = [
     "https://news.google.com/rss/search?q=국민연금+기후&hl=ko&gl=KR&ceid=KR:ko"
 ]
 
-# ✅ 키워드
+# ===== 키워드 (SFOC 맞춤) =====
 KEYWORDS = [
     "한전 부채",
     "국민연금 기후",
@@ -29,8 +29,8 @@ KEYWORDS = [
 
 CHECK_INTERVAL = 600  # 10분
 
+# ===== 중복 방지 =====
 posted = set()
-
 
 # ===== 텔레그램 전송 =====
 def send_telegram(message):
@@ -42,18 +42,15 @@ def send_telegram(message):
     }
     requests.post(url, data=data)
 
-
-# ===== 중복 방지 =====
-def hash_title(title):
-    return hashlib.md5(title.encode()).hexdigest()
-
-
 # ===== 키워드 필터 =====
 def contains_keyword(text):
     text = text.replace(" ", "")
     keywords_processed = [k.replace(" ", "") for k in KEYWORDS]
     return any(k in text for k in keywords_processed)
 
+# ===== 제목 해시 (중복 방지) =====
+def hash_title(title):
+    return hashlib.md5(title.encode()).hexdigest()
 
 # ===== 뉴스 처리 =====
 def process_feed(feed_url, region):
@@ -68,36 +65,11 @@ def process_feed(feed_url, region):
         if not contains_keyword(title):
             continue
 
+        # 중복 방지
         key = hash_title(title)
         if key in posted:
             continue
 
         posted.add(key)
 
-        label = "🇰🇷 Korea" if region == "KR" else "🌏 Global"
-
-        message = f"""
-{label} <b>Climate Finance News</b>
-
-<b>{title}</b>
-
-👉 {link}
-"""
-
-        send_telegram(message)
-        print("Sent:", title)
-
-
-# ===== 메인 루프 =====
-while True:
-    try:
-        for f in GLOBAL_FEEDS:
-            process_feed(f, "GLOBAL")
-
-        for f in KOREA_FEEDS:
-            process_feed(f, "KR")
-
-    except Exception as e:
-        print("Error:", e)
-
-    time.sleep(CHECK_INTERVAL)
+        # 지역 표시
