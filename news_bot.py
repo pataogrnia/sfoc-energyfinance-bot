@@ -50,15 +50,18 @@ RSS_FEEDS = [
 # =========================
 # 키워드
 # =========================
-KEYWORDS = [
-    "한전 부채",
-    "한전채",
-    "국민연금 기후",
-    "석탄발전",
-    "석탄화력",
-    "탈석탄",
-    "삼척블루파워 회사채",
+
+KEYWORD_GROUPS = [
+    ["한전", "부채"],       # 둘 다 포함
+    ["한전채"],       # 단일 키워드
+    ["석탄", "발전"],              # 둘 다 포함
+    ["탈석탄"]             # 단일 키워드
+    ["석탄화력"]             # 단일 키워드
+    ["삼척블루파워", "사채"],              # 둘 다 포함
+    ["국민연금", "기후"],   # 둘 다 포함
+
 ]
+
 
 
 # =========================
@@ -88,9 +91,17 @@ def normalize(text):
     return text.replace(" ", "").lower()
 
 
+
 def contains_keyword(text):
-    t = normalize(text)
-    return any(normalize(k) in t for k in KEYWORDS)
+    text_clean = text.replace(" ", "").lower()
+
+    for group in KEYWORD_GROUPS:
+        # group 안에 있는 모든 키워드가 포함되어야 함
+        if all(k.replace(" ", "").lower() in text_clean for k in group):
+            return True
+
+    return False
+
 
 
 def article_hash(title, link):
