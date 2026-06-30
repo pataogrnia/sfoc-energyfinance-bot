@@ -165,14 +165,17 @@ def loop():
         now = datetime.now(TIMEZONE)
         today = now.strftime("%Y-%m-%d")
 
-        if now.hour >= BRIEFING_HOUR and not sent_today(today):
 
-            print("Sending briefing...")
-            articles = fetch_articles()
-            msg = build(articles)
+if True:
 
-            if send(msg):
-                save_sent(today)
+    print("TEST SEND...")
+    articles = fetch_articles()
+    msg = build(articles)
+
+    send(msg)
+
+    time.sleep(3600)
+
 
         time.sleep(CHECK_INTERVAL)
 
