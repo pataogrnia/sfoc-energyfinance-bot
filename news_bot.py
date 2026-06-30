@@ -161,21 +161,21 @@ def build(articles):
 
 # ===== 루프 =====
 def loop():
+
     while True:
+
         now = datetime.now(TIMEZONE)
         today = now.strftime("%Y-%m-%d")
 
+        if now.hour >= BRIEFING_HOUR and not sent_today(today):
 
-if True:
+            print("Sending briefing...")
 
-    print("TEST SEND...")
-    articles = fetch_articles()
-    msg = build(articles)
+            articles = fetch_articles()
+            msg = build(articles)
 
-    send(msg)
-
-    time.sleep(3600)
-
+            if send(msg):
+                save_sent(today)
 
         time.sleep(CHECK_INTERVAL)
 
